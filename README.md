@@ -14,7 +14,7 @@ It is not advised to run Slopcheck on untrusted projects, as it may request arbi
 
 - Shows whether a repository has commits by a known LLM (Claude, Copilot, etc).
 - Looks for the presence of files like `CLAUDE.md`, `AGENTS.md`, etc in the working tree or in the `.gitignore` (for projects trying to hide them).
-- Checks all dependencies and indicates if they have indicators of AI too.
+- Checks all dependencies and displays if they have indicators of AI too.
 - Distinguishes between current and former LLM use.
 
 ## Usage
