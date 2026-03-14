@@ -12,7 +12,7 @@ pub const LLM_PATHS: &[&str] = &[
     ".aider.conf.yml",
     ".clinerules",
     ".cursor",
-    ".roo"
+    ".roo",
     ".junie",
     ".gemini",
 ];
