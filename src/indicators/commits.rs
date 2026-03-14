@@ -19,6 +19,9 @@ fn llm_email_to_name(email: &str) -> Option<LlmName> {
         "161369871+google-labs-jules[bot]@users.noreply.github.com" => "Jules",
         "165735046+greptile-apps[bot]@users.noreply.github.com" => "Greptile",
         "github@tryaether.ai" => "Aether",
+        "136622811+coderabbitai[bot]@users.noreply.github.com" => "CodeRabbit",
+        "240665456+kilo-code-bot[bot]@users.noreply.github.com" => "Kilo",
+        "96075541+graphite-app[bot]@users.noreply.github.com" => "Graphite",
         _ => return None,
     }))
 }

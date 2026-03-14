@@ -6,6 +6,7 @@ pub const LLM_PATHS: &[&str] = &[
     "SKILL.md",
     ".mcp.json",
     ".windsurf",
+    ".kilocode",
     ".kiro",
     ".claude",
     ".codex",
