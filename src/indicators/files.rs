@@ -5,8 +5,14 @@ pub const LLM_PATHS: &[&str] = &[
     "AGENTS.md",
     "SKILL.md",
     ".mcp.json",
+    ".windsurf",
+    ".kiro",
     ".claude",
+    ".codex",
+    ".aider.conf.yml",
+    ".clinerules",
     ".cursor",
+    ".roo"
     ".junie",
     ".gemini",
 ];
