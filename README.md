@@ -6,7 +6,7 @@ A CLI tool that checks for indicators of AI-generated code in a project and its 
 
 Currently, checking dependencies is only implemented for Rust (Cargo) projects.
 
-Partial cloned repositories are cached in `~/.cache/slopcheck/cached` or [your operating systems's cache directory](https://docs.rs/dirs/latest/dirs/fn.cache_dir.html). If a repository hasn't been modified in 24 hours, `git pull` is run.
+Partial cloned repositories are cached in `~/.cache/slopcheck/cached` or [your operating systems's cache directory](https://docs.rs/dirs/latest/dirs/fn.cache_dir.html). If a repository hasn't been touched in 24 hours, `git pull` is run.
 
 It is not advised to run Slopcheck on untrusted projects, as it may request arbitrary sources and possibly run build scripts.
 

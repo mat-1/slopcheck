@@ -27,6 +27,10 @@ fn main() {
         return;
     }
 
+    // this is required so we don't use the `rust-toolchain.toml` from other crates.
+    // SAFETY: this is only ever run once
+    unsafe { env::set_var("RUSTUP_TOOLCHAIN", env!("RUSTUP_TOOLCHAIN")) };
+
     let path = PathBuf::from_str(&args.nth(1).unwrap()).unwrap();
     let path = path.canonicalize().unwrap();
 
@@ -56,7 +60,13 @@ fn main() {
 
     let mut dep_datas = Vec::new();
 
-    let rust_deps = get_rust_dep_repo_urls(&path).unwrap_or_default();
+    let rust_deps = match get_rust_dep_repo_urls(&path) {
+        Ok(d) => d,
+        Err(err) => {
+            eprintln!("{err}");
+            Default::default()
+        }
+    };
     for dep_url in rust_deps {
         println!("{ITALIC}Checking dependency {BOLD}{dep_url}{RESET}{ITALIC}...{RESET}");
         let dep_path = match clone_repo(&dep_url) {
