@@ -1,0 +1,11 @@
+[package]
+name = "slopcheck"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dirs = "6.0.0"
+eyre = "0.6.12"
+git2 = "0.20.4"
+serde_json = "1.0.149"
+url = "2.5.8"
