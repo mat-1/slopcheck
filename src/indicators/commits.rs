@@ -7,6 +7,7 @@ use crate::LlmName;
 fn llm_email_to_name(email: &str) -> Option<LlmName> {
     Some(LlmName(match email {
         "noreply@anthropic.com" => "Claude",
+        "41898282+claude[bot]@users.noreply.github.com" => "Claude",
         "198982749+Copilot@users.noreply.github.com" => "Copilot",
         // i don't know why there's two Copilots
         "175728472+Copilot@users.noreply.github.com" => "Copilot",
