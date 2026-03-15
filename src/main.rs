@@ -27,9 +27,12 @@ fn main() {
         return;
     }
 
-    // this is required so we don't use the `rust-toolchain.toml` from other crates.
-    // SAFETY: this is only ever run once
-    unsafe { env::set_var("RUSTUP_TOOLCHAIN", env!("RUSTUP_TOOLCHAIN")) };
+    // this is required so we don't use the `rust-toolchain.toml` from other
+    // crates. it's unset if we're not using rustup.
+    if let Some(toolchain) = option_env!("RUSTUP_TOOLCHAIN") {
+        // SAFETY: this is only ever run once
+        unsafe { env::set_var("RUSTUP_TOOLCHAIN", toolchain) };
+    }
 
     let path = PathBuf::from_str(&args.nth(1).unwrap()).unwrap();
     let path = path.canonicalize().unwrap();
