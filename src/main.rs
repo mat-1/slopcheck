@@ -70,6 +70,11 @@ fn main() {
             Default::default()
         }
     };
+
+    if deps.is_empty() {
+        println!("\n{GRAY}Note: no dependencies identified.{RESET}");
+    }
+
     for dep_source in &deps {
         let dep_url = &dep_source.repo;
         println!("{ITALIC}Checking dependency {BOLD}{dep_url}{RESET}{ITALIC}...{RESET}");
@@ -102,7 +107,7 @@ fn main() {
         dep_datas.push(repo_data);
     }
 
-    println!("\n\n{UNDERLINE}Summary:{RESET}\n");
+    println!("\n{UNDERLINE}Summary:{RESET}\n");
     let mut base_repo_has_ai = false;
     let mut has_ai = false;
     let mut deps_with_llm_use = 0;

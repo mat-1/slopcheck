@@ -40,10 +40,5 @@ pub fn get_dep_sources(path: &Path) -> eyre::Result<Box<[DependencySource]>> {
     }
     sources.sort();
 
-    println!("Sources:");
-    for source in &sources {
-        println!("  {}", source.repo);
-    }
-
     Ok(sources.into())
 }
