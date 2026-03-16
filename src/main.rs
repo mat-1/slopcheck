@@ -47,17 +47,17 @@ fn main() {
                 Default::default()
             }
         };
-        let prompt_files = match check_for_llm_files(&path) {
+        let llm_files = match check_for_llm_files(&path) {
             Ok(f) => f,
             Err(err) => {
-                eprintln!("failed to check for prompt files: {err}");
+                eprintln!("failed to check for LLM files: {err}");
                 Default::default()
             }
         };
         base_repo_data = Some(RepoData {
             identifier: path.to_string_lossy().into(),
             commit_authors,
-            prompt_files,
+            llm_files,
         });
     }
 
@@ -90,10 +90,10 @@ fn main() {
             Ok(repo) => repo,
             Err(err) => panic!("failed to open: {err}"),
         };
-        let prompt_files = match check_for_llm_files(&dep_path) {
+        let llm_files = match check_for_llm_files(&dep_path) {
             Ok(f) => f,
             Err(err) => {
-                eprintln!("failed to check for prompt files: {err}");
+                eprintln!("failed to check for LLM files: {err}");
                 Default::default()
             }
         };
@@ -101,7 +101,7 @@ fn main() {
         let repo_data = RepoData {
             identifier: dep_url.to_string().into(),
             commit_authors,
-            prompt_files,
+            llm_files,
         };
         repo_data.maybe_print_summary();
         dep_datas.push(repo_data);
@@ -165,13 +165,13 @@ pub struct RepoData {
     /// Either a URL or a path.
     pub identifier: Box<str>,
     pub commit_authors: CommitAuthorsData,
-    pub prompt_files: LlmFiles,
+    pub llm_files: LlmFiles,
 }
 impl RepoData {
     pub fn has_ai(&self) -> bool {
         !self.commit_authors.commits_per_llm.is_empty()
-            || !self.prompt_files.in_worktree.is_empty()
-            || !self.prompt_files.in_gitignore.is_empty()
+            || !self.llm_files.in_worktree.is_empty()
+            || !self.llm_files.in_gitignore.is_empty()
     }
     pub fn maybe_print_summary(&self) {
         if !self.has_ai() {
@@ -179,19 +179,19 @@ impl RepoData {
         }
 
         let llm_actively_being_used = !self.commit_authors.commits_per_llm_in_past_month.is_empty()
-            || !self.prompt_files.in_worktree.is_empty()
-            || !self.prompt_files.in_gitignore.is_empty();
+            || !self.llm_files.in_worktree.is_empty()
+            || !self.llm_files.in_gitignore.is_empty();
         let color = if llm_actively_being_used { RED } else { YELLOW };
         println!(
             "{BOLD}{color}{}{RESET}{color} seems to have AI-generated code:{RESET}",
             self.identifier
         );
-        maybe_print_summary_for_prompt_files(&self.prompt_files);
+        maybe_print_summary_for_llm_files(&self.llm_files);
         maybe_print_summary_for_commits(&self.commit_authors);
     }
 }
 
-pub fn maybe_print_summary_for_prompt_files(data: &LlmFiles) {
+pub fn maybe_print_summary_for_llm_files(data: &LlmFiles) {
     let (found_where, files) = if !data.in_worktree.is_empty() {
         ("working tree", &*data.in_worktree)
     } else if !data.in_gitignore.is_empty() {
