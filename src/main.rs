@@ -13,10 +13,10 @@ use git2::Repository;
 
 use crate::{
     clone::clone_repo,
-    deps::get_rust_dep_repo_urls,
+    deps::get_dep_sources,
     indicators::{
         commits::{CommitAuthorsData, check_commit_authors},
-        files::{PromptFiles, check_for_prompt_files},
+        files::{LlmFiles, check_for_llm_files},
     },
 };
 
@@ -47,7 +47,7 @@ fn main() {
                 Default::default()
             }
         };
-        let prompt_files = match check_for_prompt_files(&path) {
+        let prompt_files = match check_for_llm_files(&path) {
             Ok(f) => f,
             Err(err) => {
                 eprintln!("failed to check for prompt files: {err}");
@@ -63,16 +63,17 @@ fn main() {
 
     let mut dep_datas = Vec::new();
 
-    let rust_deps = match get_rust_dep_repo_urls(&path) {
+    let deps = match get_dep_sources(&path) {
         Ok(d) => d,
         Err(err) => {
             eprintln!("{err}");
             Default::default()
         }
     };
-    for dep_url in rust_deps {
+    for dep_source in &deps {
+        let dep_url = &dep_source.repo;
         println!("{ITALIC}Checking dependency {BOLD}{dep_url}{RESET}{ITALIC}...{RESET}");
-        let dep_path = match clone_repo(&dep_url) {
+        let dep_path = match clone_repo(dep_url) {
             Ok(p) => p,
             Err(err) => {
                 eprintln!("{err}");
@@ -84,7 +85,7 @@ fn main() {
             Ok(repo) => repo,
             Err(err) => panic!("failed to open: {err}"),
         };
-        let prompt_files = match check_for_prompt_files(&dep_path) {
+        let prompt_files = match check_for_llm_files(&dep_path) {
             Ok(f) => f,
             Err(err) => {
                 eprintln!("failed to check for prompt files: {err}");
@@ -102,21 +103,37 @@ fn main() {
     }
 
     println!("\n\n{UNDERLINE}Summary:{RESET}\n");
+    let mut base_repo_has_ai = false;
     let mut has_ai = false;
+    let mut deps_with_llm_use = 0;
     if let Some(base_repo_data) = base_repo_data
         && base_repo_data.has_ai()
     {
         has_ai = true;
+        base_repo_has_ai = true;
         base_repo_data.maybe_print_summary();
     }
     for dep_data in &dep_datas {
         if dep_data.has_ai() {
             has_ai = true;
+            deps_with_llm_use += 1;
             dep_data.maybe_print_summary();
         }
     }
 
-    if !has_ai {
+    if has_ai {
+        println!();
+        let deps_count = deps.len();
+        if base_repo_has_ai {
+            println!(
+                "{ITALIC}This project and {BOLD}{deps_with_llm_use}{RESET}{ITALIC} (out of {deps_count}) dependencies have indicators of LLM use.{RESET}"
+            )
+        } else {
+            println!(
+                "{ITALIC}{BOLD}{deps_with_llm_use}{RESET}{ITALIC} (out of {deps_count}) of this project's dependencies have indicators of LLM use.{RESET}"
+            )
+        }
+    } else {
         let or_its_dependencies = if dep_datas.is_empty() {
             ""
         } else {
@@ -143,7 +160,7 @@ pub struct RepoData {
     /// Either a URL or a path.
     pub identifier: Box<str>,
     pub commit_authors: CommitAuthorsData,
-    pub prompt_files: PromptFiles,
+    pub prompt_files: LlmFiles,
 }
 impl RepoData {
     pub fn has_ai(&self) -> bool {
@@ -169,7 +186,7 @@ impl RepoData {
     }
 }
 
-pub fn maybe_print_summary_for_prompt_files(data: &PromptFiles) {
+pub fn maybe_print_summary_for_prompt_files(data: &LlmFiles) {
     let (found_where, files) = if !data.in_worktree.is_empty() {
         ("working tree", &*data.in_worktree)
     } else if !data.in_gitignore.is_empty() {
@@ -242,4 +259,36 @@ impl Display for LlmName {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
     }
+}
+
+pub fn cache_dir(category: &'static str, item: &str) -> PathBuf {
+    assert!(!item.starts_with('/'));
+    assert!(!item.contains(".."));
+    assert!(!item.contains("\\"));
+    assert!(!item.contains(":"));
+
+    let path = dirs::cache_dir()
+        .expect("should have a cache dir")
+        .join("slopcheck")
+        .join(category)
+        .join(item);
+
+    // just in case
+    let mut components = path.components();
+    match components.next().unwrap() {
+        std::path::Component::RootDir => {}
+        _ => panic!(
+            "couldn't create cache dir at {path:?} because it doesn't start with a root directory"
+        ),
+    }
+    for component in components {
+        match component {
+            std::path::Component::Normal(..) => {}
+            _ => panic!(
+                "couldn't create cache dir at {path:?} because it contains non-normal components"
+            ),
+        }
+    }
+
+    path
 }

@@ -108,6 +108,9 @@ pub fn check_commit_authors(repo: &Repository) -> eyre::Result<CommitAuthorsData
         total_commits += 1;
     }
 
+    commits_per_llm.sort_by_key(|(_, c)| u64::MAX - *c);
+    commits_per_llm_in_past_month.sort_by_key(|(_, c)| u64::MAX - *c);
+
     Ok(CommitAuthorsData {
         commits_per_llm: commits_per_llm.into(),
         total_commits,

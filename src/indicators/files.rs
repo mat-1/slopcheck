@@ -19,12 +19,12 @@ pub const LLM_PATHS: &[&str] = &[
 ];
 
 #[derive(Default, Debug)]
-pub struct PromptFiles {
+pub struct LlmFiles {
     pub in_worktree: Box<[&'static str]>,
     pub in_gitignore: Box<[&'static str]>,
 }
 
-pub fn check_for_prompt_files(path: &Path) -> eyre::Result<PromptFiles> {
+pub fn check_for_llm_files(path: &Path) -> eyre::Result<LlmFiles> {
     let mut in_worktree = HashSet::<&'static str>::new();
     let mut in_gitignore = HashSet::<&'static str>::new();
 
@@ -62,7 +62,7 @@ pub fn check_for_prompt_files(path: &Path) -> eyre::Result<PromptFiles> {
         in_worktree.insert(prompt_file);
     }
 
-    Ok(PromptFiles {
+    Ok(LlmFiles {
         in_worktree: in_worktree.into_iter().collect(),
         in_gitignore: in_gitignore.into_iter().collect(),
     })

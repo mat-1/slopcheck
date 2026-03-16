@@ -37,23 +37,7 @@ pub fn clone_repo(url: &Url) -> eyre::Result<PathBuf> {
         );
     }
 
-    let path = dirs::cache_dir()
-        .expect("should have a cache dir")
-        .join("slopcheck")
-        .join("clones")
-        .join(cache_key);
-
-    let mut components = path.components();
-    match components.next().unwrap() {
-        std::path::Component::RootDir => {}
-        _ => panic!("couldn't convert url to a path: {url}"),
-    }
-    for component in components {
-        match component {
-            std::path::Component::Normal(..) => {}
-            _ => panic!("couldn't convert url to a path: {url}"),
-        }
-    }
+    let path = crate::cache_dir("clones", &cache_key);
 
     let dot_git_path = path.join(".git");
     if dot_git_path.exists() {

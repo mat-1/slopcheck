@@ -3,7 +3,9 @@ use std::{collections::HashSet, path::Path, process::Command};
 use eyre::bail;
 use url::Url;
 
-pub fn get_rust_dep_repo_urls(path: &Path) -> eyre::Result<Box<[Url]>> {
+use crate::deps::DependencySource;
+
+pub fn get_dep_sources(path: &Path) -> eyre::Result<Box<[DependencySource]>> {
     let metadata = Command::new("cargo")
         .current_dir(path)
         .arg("metadata")
@@ -29,7 +31,8 @@ pub fn get_rust_dep_repo_urls(path: &Path) -> eyre::Result<Box<[Url]>> {
         dep_urls.insert(Url::parse(repo_url).unwrap());
     }
 
-    let mut dep_urls = dep_urls.into_iter().collect::<Box<[_]>>();
-    dep_urls.sort();
-    Ok(dep_urls)
+    Ok(dep_urls
+        .into_iter()
+        .map(|repo| DependencySource { repo })
+        .collect())
 }

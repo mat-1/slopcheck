@@ -4,9 +4,9 @@ A CLI tool that checks for indicators of AI-generated code in a project and its 
 
 ![Screenshot of running slopcheck on Rolldown. There are a lot of matches.](demo.png)
 
-Currently, checking dependencies is only implemented for Rust (Cargo) projects.
+Currently, checking dependencies is only implemented for Rust (Cargo) and JavaScript (if it has a package.json that uses NPM).
 
-Partial cloned repositories are cached in `~/.cache/slopcheck/clones` or [your operating systems's cache directory](https://docs.rs/dirs/latest/dirs/fn.cache_dir.html). If a repository hasn't been touched in 24 hours, `git pull` is run.
+The cache for cloned repositories and some metadata is at `~/.cache/slopcheck` or [your operating systems's cache directory](https://docs.rs/dirs/latest/dirs/fn.cache_dir.html). Items in this cache are updated after 24 hours.
 
 It is not advised to run Slopcheck on untrusted projects, as it may request arbitrary sources and possibly run build scripts.
 
