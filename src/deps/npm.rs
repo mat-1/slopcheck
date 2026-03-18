@@ -3,6 +3,7 @@ use std::{
     fs,
     path::Path,
     sync::LazyLock,
+    time::Duration,
 };
 
 use ureq::Agent;
@@ -88,8 +89,13 @@ static AGENT: LazyLock<Agent> = LazyLock::new(|| {
 
 pub fn fetch_npm_metadata(package_name: &str) -> eyre::Result<String> {
     let cache_dir = crate::cache_dir("npm", &format!("{package_name}.json"));
-    if cache_dir.exists() {
-        return Ok(fs::read_to_string(cache_dir)?);
+    if let Ok(metadata) = cache_dir.metadata() {
+        if let Ok(last_modified) = metadata.modified() {
+            let time_since_modified = last_modified.elapsed().unwrap_or_default();
+            if time_since_modified < Duration::from_hours(24) {
+                return Ok(fs::read_to_string(cache_dir)?);
+            }
+        }
     }
 
     println!("  Fetching metadata for {package_name} from NPM");

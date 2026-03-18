@@ -40,10 +40,9 @@ pub fn clone_repo(url: &Url) -> eyre::Result<PathBuf> {
     let path = crate::cache_dir("clones", &cache_key);
 
     let dot_git_path = path.join(".git");
-    if dot_git_path.exists() {
+    if let Ok(metadata) = dot_git_path.metadata() {
         // println!("Using repo {url}");
 
-        let metadata = dot_git_path.metadata().expect("file should exist");
         if let Ok(last_modified) = metadata.modified() {
             let time_since_modified = last_modified.elapsed().unwrap_or_default();
             if time_since_modified > Duration::from_hours(24) {
@@ -57,7 +56,7 @@ pub fn clone_repo(url: &Url) -> eyre::Result<PathBuf> {
             }
         }
 
-        // do checkout every time to make sure new items in LLM_PROMPT_FILES are handled
+        // do checkout every time to make sure new items in LLM_FILES are handled
         // instantly
         checkout_required_files(&path)?;
 
