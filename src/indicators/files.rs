@@ -47,19 +47,18 @@ pub fn check_for_llm_files(path: &Path) -> eyre::Result<LlmFiles> {
                     continue;
                 };
 
-                let Some(prompt_file) = LLM_PATHS.iter().find(|f| f.eq_ignore_ascii_case(line))
-                else {
+                let Some(llm_file) = LLM_PATHS.iter().find(|f| f.eq_ignore_ascii_case(line)) else {
                     continue;
                 };
-                in_gitignore.insert(prompt_file);
+                in_gitignore.insert(llm_file);
             }
             continue;
         }
 
-        let Some(prompt_file) = LLM_PATHS.iter().find(|f| f.eq_ignore_ascii_case(file_name)) else {
+        let Some(llm_file) = LLM_PATHS.iter().find(|f| f.eq_ignore_ascii_case(file_name)) else {
             continue;
         };
-        in_worktree.insert(prompt_file);
+        in_worktree.insert(llm_file);
     }
 
     Ok(LlmFiles {
